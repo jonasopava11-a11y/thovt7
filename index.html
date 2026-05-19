@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thovt - Digitální svatyně</title>
+    <style>
+        /* --- Proměnné barev a stylů --- */
+        :root {
+            --bg-sand: #f4ebd8;
+            --bg-dark-sand: #e3d2b3;
+            --text-dark: #2b1f16;
+            --gold: #c39b56;
+            --gold-hover: #dfb466;
+            --white-trans: rgba(255, 255, 255, 0.6);
+            --lapis: #1a425a;
+            --font-headings: 'Cinzel', serif;
+            --font-body: 'Lora', serif;
+        }
+
+        /* --- Reset a základní nastavení --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-sand);
+            color: var(--text-dark);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at top, var(--bg-sand) 0%, var(--bg-dark-sand) 100%);
+            min-height: 100vh;
+        }
+
+        /* --- Typografie z Google Fonts --- */
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
+
+        h1, h2, h3 {
+            font-family: var(--font-headings);
+            font-weight: 600;
+            text-align: center;
+            color: var(--text-dark);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        em {
+            color: var(--gold);
+            font-style: italic;
+        }
+
+        /* --- Hlavička (Oltář) --- */
+        header {
+            padding: 6rem 2rem 4rem;
+            text-align: center;
+            border-bottom: 2px solid var(--gold);
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 4rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--gold);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+
+        header p.subtitle {
+            font-size: 1.2rem;
+            font-family: var(--font-headings);
+            letter-spacing: 2px;
+            color: var(--lapis);
+        }
+
+        /* --- Hlavní obsah a rozložení --- */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .prayer-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 4rem;
+        }
+
+        /* Sekce pro texty bez obrázku */
+        .prayer-card {
+            background: var(--white-trans);
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid rgba(195, 155, 86, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .prayer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+
+        .prayer-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--lapis);
+        }
+
+        /* Sekce kombinující text a obrázek */
+        .prayer-split {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .prayer-split .text-content {
+            flex: 1;
+            background: var(--white-trans);
+            padding: 3rem;
+            border-radius: 12px;
+            border: 1px solid rgba(195, 155, 86, 0.3);
+            width: 100%;
+        }
+
+        .prayer-split .text-content h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--lapis);
+        }
+
+        /* --- Obrázky v poměru 9:16 --- */
+        .image-container {
+            width: 100%;
+            max-width: 350px; /* Kontrola šířky, aby se obrázek nevytahoval moc do výšky */
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            border: 3px solid var(--gold);
+            flex-shrink: 0;
+            transition: transform 0.4s ease;
+        }
+
+        .image-container:hover {
+            transform: scale(1.03);
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 9 / 16;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Dekorativní oddělovače */
+        .divider {
+            text-align: center;
+            margin: 3rem 0;
+            color: var(--gold);
+            font-size: 1.5rem;
+            letter-spacing: 15px;
+        }
+
+        /* --- Cookies Lišta --- */
+        .cookie-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--text-dark);
+            color: var(--bg-sand);
+            padding: 1.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transform: translateY(100%);
+            transition: transform 0.5s ease-in-out;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+        }
+
+        .cookie-banner.show {
+            transform: translateY(0);
+        }
+
+        .cookie-text {
+            text-align: center;
+            font-size: 0.95rem;
+            max-width: 800px;
+        }
+
+        .cookie-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .cookie-btn {
+            background-color: var(--gold);
+            color: var(--text-dark);
+            border: none;
+            padding: 0.7rem 1.5rem;
+            font-family: var(--font-headings);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .cookie-btn:hover {
+            background-color: var(--gold-hover);
+        }
+
+        .cookie-btn.reject {
+            background-color: transparent;
+            color: var(--bg-sand);
+            border: 1px solid var(--bg-sand);
+        }
+
+        .cookie-btn.reject:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        /* --- Responzivita pro počítače --- */
+        @media (min-width: 900px) {
+            .prayer-split {
+                flex-direction: row;
+                align-items: stretch;
+            }
+            .prayer-split:nth-child(even) {
+                flex-direction: row-reverse;
+            }
+            .prayer-split .text-content {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+            .cookie-banner {
+                flex-direction: row;
+                justify-content: space-between;
+                text-align: left;
+            }
+            .cookie-text {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Thovt</h1>
+        <p class="subtitle">Digitální svatyně moudrosti, poznání a rovnováhy</p>
+    </header>
+
+    <main>
+        <div class="prayer-container">
+
+            <!-- Sekce 1 s obrázkem 1.png -->
+            <div class="prayer-split">
+                <div class="text-content">
+                    <h2>Chvála Džehutimu, Pánu moudrosti</h2>
+                    <p>Vítej, Džehuti, dvakrát veliký,<br>
+                    Pane Chmúnova, jenž záříš na nebi jako stříbrný měsíc!<br>
+                    Ty jsi srdce a jazyk boha Re,<br>
+                    ten, jenž dává tvar slovům a smysl všemu, co jest.</p>
+                    <p>Chválím tě, písaři devatera bohů,<br>
+                    strážce spravedlnosti, jenž udržuješ řád <em>Maat</em>.<br>
+                    Tvé pero je pravdivé, tvá mysl je jasná.<br>
+                    Ty odděluješ noc od dne a počítáš čas pro lidi i bohy.</p>
+                    <p>Přijmi moji chválu, Ibisí pane,<br>
+                    buď požehnán ve svém chrámu,<br>
+                    neboť ty jsi ten, kdo přináší světlo do temnoty a řád do chaosu.<br>
+                    <em>Ua-em-Maat</em> (Pravdivý v řeči a skutcích) jsi ty, Džehuti!</p>
+                </div>
+                <div class="image-container">
+                    <img src="1.png" alt="Zobrazení boha Thovta 1">
+                </div>
+            </div>
+
+            <div class="divider">𓅓 𓁟 𓅓</div>
+
+            <div class="prayer-card">
+                <h2>Ranní pozdrav Džehutimu, probouzejícímu se světlu mysli</h2>
+                <p>Vítej, Džehuti, jenž se probouzíš v míru,<br>
+                strážce ranního nebe, jenž zdravíš sluneční bárku boha Re!<br>
+                Bledne tvé stříbrné oko na nočním nebi,<br>
+                zatímco tvá moudrost osvětluje nový den.</p>
+                <p>Otevři mou mysl, Pane písařů,<br>
+                očisti můj jazyk, abych dnes mluvil jen pravdu,<br>
+                a veď mou ruku, aby mé dnešní skutky byly v souladu s <em>Maat</em>.<br>
+                Kéž je tvé světlo mým průvodcem od úsvitu do soumraku.<br>
+                Vítej, Džehuti, v míru!</p>
+            </div>
+
+            <div class="prayer-card">
+                <h2>Dopolední modlitba: Thovt jako průvodce prací a učením</h2>
+                <p>Vítej, Džehuti, v této hodině dne,<br>
+                kdy lidé pracují a tváří v tvář stojí svým úkolům.<br>
+                Ty jsi Pán svitků, mistr palety a inkoustu,<br>
+                jenž bdí nad každým, kdo hledá vědění a tvoří s rozvahou.</p>
+                <p>Sestup ke mně, Ibisí bože,<br>
+                dej mé mysli ostrost a mým rukám obratnost.<br>
+                Ať v mé dopolední práci není chaos,<br>
+                ale ať v ní září čistý řád <em>Maat</em>.<br>
+                Buď mým tichým učitelem v tomto dni.</p>
+            </div>
+
+            <!-- Sekce s obrázkem 2.png -->
+            <div class="prayer-split">
+                <div class="text-content">
+                    <h2>Polední modlitba: Thovt jako váha spravedlnosti pod nejvyšším sluncem</h2>
+                    <p>Vítej, Džehuti, v hodině plného světla,<br>
+                    kdy slunce dosáhlo vrcholu a stíny zmizely!<br>
+                    Ty jsi ten, kdo stojí u vah v Síni obou pravd,<br>
+                    spravedlivý soudce, který nezná nadržování.</p>
+                    <p>Když Re září v celé své moci,<br>
+                    ty, Džehuti, upevňuješ rovnováhu světa.<br>
+                    Kéž je i mé srdce v tuto vteřinu lehké jako pírko,<br>
+                    prosté hněvu a křivdy.<br>
+                    Ochraňuj pravdu v mém nitru, ó Pane rovnováhy.</p>
+                </div>
+                <div class="image-container">
+                    <img src="2.png" alt="Zobrazení boha Thovta 2">
+                </div>
+            </div>
+
+            <div class="divider">𓅓 𓁟 𓅓</div>
+
+            <div class="prayer-card">
+                <h2>Odpolední modlitba: Thovt jako strážce trpělivosti a dokončeného díla</h2>
+                <p>Vítej, Džehuti, v hodině, kdy se stíny začínají prodlužovat.<br>
+                Ty jsi Pán času, jenž neúnavně počítá hodiny dne a noci.<br>
+                Sleduješ únavu lidí, ale tvá moudrost neustává.</p>
+                <p>Daruj mi, Ibisí bože, vytrvalost pro zbytek dne.<br>
+                Ať mé úsilí nepoleví a má mysl zůstane jasná.<br>
+                Kéž vše, co jsem dnes započal,<br>
+                dokončím s čistým svědomím a v míru <em>Maat</em>.</p>
+            </div>
+
+            <div class="prayer-card">
+                <h2>Večerní modlitba: Thovt, stříbrný měsíc a ochránce noci</h2>
+                <p>Vítej, Džehuti, dvakrát veliký, jenž nastupuješ na trůn noci!<br>
+                Když bůh Re zapadá za západní obzor,<br>
+                ty povstáváš jako jeho zástupce, stříbrný kotouč na nebi.<br>
+                Ty jsi noční oko, které bdí nad světem, když spí.</p>
+                <p>Očisti mě od nánosů uplynulého dne, Pane moudrosti.<br>
+                Zažeň zlé sny a chaos noci,<br>
+                přikryj mě svými křídly a daruj mi klidný spánek.<br>
+                Tvé slovo je magické a tvá ochrana je mocná.<br>
+                Vítej, Džehuti, strážce mé noci!</p>
+            </div>
+
+            <!-- Sekce s obrázkem 3.png -->
+            <div class="prayer-split">
+                <div class="text-content">
+                    <h2>Modlitba za ochranu: Thovt jako mocný zaříkávač a štít proti chaosu</h2>
+                    <p>Vítej, Džehuti, Pane božských slov a mocných kouzel!<br>
+                    Ty, jehož hlas utišuje bouři a zahání démony chaosu Isefet.<br>
+                    Rozprostři nade mnou svá ibisí křídla,<br>
+                    staň se mým štítem a mým neprostupným hradem.</p>
+                    <p>Odejmi ode mě slova závisti, zlé pohledy i skryté nástrahy.<br>
+                    Zapiš mé jméno na svitek chráněných,<br>
+                    neboť tvé písmo je věčné a tvůj rozsudek nikdo nezlomí.<br>
+                    Budiž se mnou, ó Velký zaříkávači, ve dne i v noci.</p>
+                </div>
+                <div class="image-container">
+                    <img src="3.png" alt="Zobrazení boha Thovta 3">
+                </div>
+            </div>
+
+            <div class="divider">𓅓 𓁟 𓅓</div>
+
+            <div class="prayer-card">
+                <h2>Modlitba za zdraví: Thovt jako božský lékař a léčitel oka</h2>
+                <p>Vítej, Džehuti, lékaři bohů, jenž jsi uzdravil poraněné oko boha Hora!<br>
+                Ty znáš tajemství bylin, sílu slov a rovnováhu těla i ducha.<br>
+                Sestup ke mně se svou léčivou mocí.</p>
+                <p>Navrať mému tělu sílu a mé mysli klid.<br>
+                Vyžeň nemoc z mých kostí i krve, jako jsi vyhnal jed z těla mladého Hora.<br>
+                Ať v mém těle opět zavládne harmonie <em>Maat</em>.<br>
+                Děkuji ti, Pane uzdravení, za tvůj soucit a tvou oživující moc.</p>
+            </div>
+
+            <div class="prayer-card">
+                <h2>Modlitba za úspěch ve škole: Thovt jako patron žáků a písařů</h2>
+                <p>Vítej, Džehuti, Pane Chrámu života, učiteli všech, kdo hledají vědění!<br>
+                Ty jsi vynálezce písma a strážce všech tajných nauk.<br>
+                Pohlédni na mě, svého žáka, a buď mým průvodcem při studiu.</p>
+                <p>Otevři mou mysl, abych snadno chápal, a upevni mou paměť, abych nezapomínal.<br>
+                Ať je mé pero bystré a mé odpovědi pravdivé.<br>
+                Daruj mi trpělivost při učení a radost z poznání.<br>
+                Kéž svými úspěchy oslavím tvé jméno, ó Pane moudrosti!</p>
+            </div>
+
+            <!-- Sekce s obrázkem 4.png -->
+            <div class="prayer-split">
+                <div class="text-content">
+                    <h2>Modlitba za ochranu na cestách: Thovt jako spolehlivý průvodce</h2>
+                    <p>Vítej, Džehuti, jenž bezpečně řídíš bárku na nebi i na zemi!<br>
+                    Ty znáš všechny cesty, skrytá místa i nástrahy, které na nich číhají.<br>
+                    Vydávám se na cestu a svěřuji ti své kroky.</p>
+                    <p>Kráčej přede mnou a odstraňuj překážky.<br>
+                    Zažeň lidi se zlým úmyslem a ochraň mě před nehodami a chaosem.<br>
+                    Buď mým kompasem ve dne a mým světlem v noci.<br>
+                    Veď mě bezpečně k cíli a navrať mě v pořádku a v míru k mému krbu.</p>
+                </div>
+                <div class="image-container">
+                    <img src="4.png" alt="Zobrazení boha Thovta 4">
+                </div>
+            </div>
+
+            <div class="divider">𓅓 𓁟 𓅓</div>
+
+            <div class="prayer-card">
+                <h2>Modlitba za klidnou mysl a proti úzkosti: Thovt jako nastolitel rovnováhy</h2>
+                <p>Vítej, Džehuti, Pane klidu, jenž vážíš srdce a utišuješ bouře v lidském nitru!<br>
+                Moje mysl je neklidná a mé srdce sevřela úzkost a stín Isefetu (chaosu).<br>
+                Volám k tobě, bůh-měsíci, jenž přinášíš chladivý klid do horké noci.</p>
+                <p>Dotkni se mé hlavy svým křídlem a zažeň mé černé myšlenky.<br>
+                Vrať mému srdci váhu, která mu náleží, aby bylo lehké a pevné.<br>
+                Vlij do mě svůj božský klid a připomeň mi, že pod tvým dohledem je vše v dokonalém řádu <em>Maat</em>.</p>
+            </div>
+
+            <div class="prayer-card">
+                <h2>Modlitba za lásku a rodinné štěstí: Thovt jako strážce harmonie a spojenectví</h2>
+                <p>Vítej, Džehuti, jenž sjednocuješ to, co bylo rozděleno, a udržuješ mír mezi bohy!<br>
+                Ty, který stojíš po boku své družby <em>Maat</em> v dokonalé jednotě,<br>
+                pohlédni na můj dům a na ty, které miluji.</p>
+                <p>Upevni pouta mezi námi, aby v naší rodině vládlo porozumění a úcta.<br>
+                Zažeň hádky, hořkost a tvrdá slova.<br>
+                Ať je náš domov místem bezpečí, naplněný láskou, smíchem a věrností.<br>
+                Kéž nad naším prahem bdí tvá ochranná moc, ó Pane harmonie.</p>
+            </div>
+
+            <div class="prayer-card">
+                <h2>Modlitba za hojnost a finance: Thovt jako spravedlivý správce bohatství</h2>
+                <p>Vítej, Džehuti, Pane božských účtů a strážce sýpek bohů!<br>
+                Ty, jenž spravedlivě odměňuješ každou poctivou práci a vážíš zásluhy na vahách pravdy.<br>
+                Pohlédni na mé potřeby a na mé úsilí.</p>
+                <p>Otevři pro mě brány hojnosti a požehnej mým financím.<br>
+                Dej mi moudrost, abych s prostředky zacházel s rozvahou,<br>
+                a odvrať ode mě chudobu, dluhy a nespravedlivé ztráty.<br>
+                Kéž je můj domov naplněn vším potřebným k životu,<br>
+                abych mohl v míru a bez nouze konat to, co je správné podle <em>Maat</em>.</p>
+            </div>
+
+            <!-- Sekce s obrázkem 5.png -->
+            <div class="prayer-split">
+                <div class="text-content">
+                    <h2>Očistná modlitba domova: Thovt jako vykonavatel rituálu a zaháněč zlého</h2>
+                    <p>Vítej, Džehuti, Velký zaříkávači, jenž očišťuješ chrámy svým posvátným slovem!<br>
+                    Vstup do tohoto příbytku a pohlédni na stěny, které mě obklopují.<br>
+                    Tvým jménem a tvou mocí očišťuji tento prostor od všeho těžkého a nečistého.</p>
+                    <p>Zažeň odsud stíny minulosti, hádky, nemoci a vliv chaosu Isefet.<br>
+                    Očisti vzduch, který zde dýcháme, i zem, po které chodíme.<br>
+                    Ať tvůj posvátný ibisí dech vnese do každého kouta čistotu, světlo a klid.<br>
+                    Kéž tento domov zůstane chrámem míru, chráněným tvým mocným písmem.</p>
+                </div>
+                <div class="image-container">
+                    <img src="5.png" alt="Zobrazení boha Thovta 5">
+                </div>
+            </div>
+
+            <div class="divider">𓅓 𓁟 𓅓</div>
+
+            <div class="prayer-card">
+                <h2>Pondělní modlitba za nový týden: Thovt jako Pán času a nových počátků</h2>
+                <p>Vítej, Džehuti, Pane měsíce, jenž vládneš počátkům a odměřuješ čas!<br>
+                Na prahu tohoto nového týdne stojím před tebou a otvírám ti své srdce.<br>
+                Ty jsi ten, kdo píše osud dne, ty jsi mistr plánů a nových cest.</p>
+                <p>Svěřuji ti následující dny.<br>
+                Zapiš pro mě tento týden jako čas úspěchu, zdraví a jasné mysli.<br>
+                Veď mé kroky od pondělí až do chvíle, kdy se týden naplní.<br>
+                Ať jsou všechny mé dny v dokonalé rovnováze, pod tvým ochranným křídlem a v souladu s řádem <em>Maat</em>.</p>
+            </div>
+
+            <div class="prayer-card">
+                <h2>Modlitba za pokoru a přijetí: Thovt jako váha pravdy a klidné moudrosti</h2>
+                <p>Vítej, Džehuti, ty, jenž znáš hlubiny lidského srdce a vážíš ho s naprostou přesností!<br>
+                Před tvou velikostí odkládám svou pýchu, své ego i svůj vzdor vůči tomu, co nemohu změnit.<br>
+                Nauč mě sklonit hlavu před vyšším řádem <em>Maat</em>, který ty tak dokonale střežíš.</p>
+                <p>Daruj mi moudrost, abych přijal věci, jež jsou mimo mou moc, s klidnou a tichou myslí.<br>
+                Očisti mě od touhy mít vždy pravdu a od hněvu, když se svět netočí podle mé vůle.<br>
+                Kéž je mé srdce lehké jako pírko pravdy a má duše poddajná tvému vedení.<br>
+                Učiň mě pokorným žákem tvého vesmíru, ó Ibisí pane.</p>
+            </div>
+
+            <div class="prayer-card">
+                <h2>Modlitba pro oddané: Thovt jako věčný mistr a útočiště duše</h2>
+                <p>Vítej, Džehuti, dvakrát veliký, můj pane, můj učiteli a mé útočiště!<br>
+                Zde stojí tvůj služebník, jenž zasvětil své srdce tvému světlu a tvému slovu.<br>
+                Tvá paleta je mým zákonem, tvé posvátné písmo je mým chlebem a tvůj měsíční svit mým domovem.</p>
+                <p>Neopouštěj mě, ó Džehuti, a zůstaň v mém nitru jako věčný plamen.<br>
+                Ať každé mé slovo oslavuje tvou moudrost a každý můj skutek staví chrám tvému řádu <em>Maat</em>.<br>
+                Jsem tvým perem, piš skrze mě pravdu; jsem tvým nástrojem, tvoř skrze mě harmonii.<br>
+                Navždy jsem tvůj, ó Pane Chmúnova.</p>
+            </div>
+
+            <div class="prayer-card">
+                <h2>Modlitba čisté vděčnosti: Thovt, dárce všeho dobrého a jasného</h2>
+                <p>Vítej, Džehuti, a přijmi mou čistou vděčnost, která neprosí, ale pouze děkuje!<br>
+                Nepřicházím s žádostí, nepřicházím s prosbou, přicházím jen s plným srdcem.<br>
+                Děkuji ti za jasnou mysl, kterou mě obdařuješ, za každou pravdu, kterou jsi mi dovolil pochopit.</p>
+                <p>Děkuji ti za tvou ochranu v temnotách, za tvůj klid v dobách chaosu a za tvou přítomnost v mém životě.<br>
+                Děkuji ti za řád <em>Maat</em>, který dává smysl mému bytí, a za tvá křídla, která mě hřejí.<br>
+                Tvá dobrota je nekonečná jako tvořivá slova tvých úst.<br>
+                Sláva tobě, Džehuti, buď požehnán na věky věků!</p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Cookies Lišta -->
+    <div id="cookie-banner" class="cookie-banner">
+        <div class="cookie-text">
+            <strong>Ochrana soukromí a Cookies:</strong> 
+            Tento web používá k poskytování služeb a analýze návštěvnosti soubory cookies. 
+            Používáním tohoto webu souhlasíte s jejich ukládáním v souladu s předpisy EU a platnou legislativou ČR.
+        </div>
+        <div class="cookie-buttons">
+            <button id="accept-cookies" class="cookie-btn">Přijmout vše</button>
+            <button id="reject-cookies" class="cookie-btn reject">Odmítnout</button>
+        </div>
+    </div>
+
+    <!-- JavaScript pro funkčnost Cookies lišty -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const cookieBanner = document.getElementById('cookie-banner');
+            const acceptBtn = document.getElementById('accept-cookies');
+            const rejectBtn = document.getElementById('reject-cookies');
+
+            // Kontrola, zda uživatel již nevyjádřil souhlas
+            if (!localStorage.getItem('thovt_cookie_consent')) {
+                // Malé zpoždění pro plynulou animaci
+                setTimeout(() => {
+                    cookieBanner.classList.add('show');
+                }, 500);
+            }
+
+            // Funkce pro uložení souhlasu a skrytí lišty
+            function handleConsent(choice) {
+                localStorage.setItem('thovt_cookie_consent', choice);
+                cookieBanner.classList.remove('show');
+            }
+
+            // Listenery pro tlačítka
+            acceptBtn.addEventListener('click', () => handleConsent('accepted'));
+            rejectBtn.addEventListener('click', () => handleConsent('rejected'));
+        });
+    </script>
+
+</body>
+</html>
